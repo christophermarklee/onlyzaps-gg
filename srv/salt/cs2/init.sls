@@ -57,7 +57,6 @@ cs2-libraries:
         - cronie
         - policycoreutils-python-utils
         - httpd
-        - mod_wsgi
         - python3-devel
         - python3-pip
         - python3-virtualenv
