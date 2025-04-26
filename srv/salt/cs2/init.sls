@@ -181,7 +181,7 @@ metamod-install:
     - name: |
         tar -xf /opt/steamcmd/metamod.tar.gz
     - runas: steam
-    cwd: /home/steam/cs2-ds/game/csgo
+    - cwd: /home/steam/cs2-ds/game/csgo
     - require:
         - cmd: cs2-server-install
         - file: /opt/steamcmd/metamod.tar.gz
@@ -196,3 +196,7 @@ metamod-update-gameinfo-config:
     - content: |
         Game    csgo/addons/metamod
     - append_if_not_found: True
+    - require:
+        - cmd: cs2-server-install
+        - cmd: metamod-install
+    - unless: grep -q "Game    csgo/addons/metamod" /home/steam/cs2-ds/game/csgo/gameinfo.gi
