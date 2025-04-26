@@ -41,9 +41,9 @@ cs2-firewall-ports:
 # System packages & build tools
 # ---------------------------------------------------------------------------
 
-cs2-build-tools:
-  cmd.run:
-    - name: sudo dnf -y group install 'development-tools'
+# cs2-build-tools:
+#   cmd.run:
+#     - name: sudo dnf -y group install 'development-tools'
 
 cs2-libraries:
   pkg.installed:
