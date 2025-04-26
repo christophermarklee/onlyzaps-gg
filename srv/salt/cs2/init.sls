@@ -7,6 +7,7 @@
 
 {% set gsl_token = salt['pillar.get']('cs2:gsl_token', '') %}
 {% set metamod_url = salt['pillar.get']('cs2:metamod_url', 'https://mms.alliedmods.net/mmsdrop/2.0/mmsource-2.0.0-git1348-linux.tar.gz') %}
+{% set counterstrikesharpe_url = salt['pillar.get']('cs2:counterstrikesharpe_url', 'https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v1.0.316/counterstrikesharp-with-runtime-linux-1.0.316.zip') %}
 
 # ---------------------------------------------------------------------------
 # Ensure firewalld package & service installed and running
@@ -165,7 +166,7 @@ cs2-update-cron:
         - cmd: cs2-server-install
 
 # ---------------------------------------------------------------------------
-# 6. Metamod:Source installation
+# Metamod:Source installation
 # ---------------------------------------------------------------------------
 /opt/steamcmd/metamod.tar.gz:
   file.managed:
@@ -186,15 +187,34 @@ metamod-install:
         - file: /opt/steamcmd/metamod.tar.gz
     - unless: test -f /home/steam/cs2-ds/game/csgo/addons/metamod/metamod/bin/linux64/metamod.2.csgo.so
 
-# metamod-update-gameinfo-config:
-#   file.blockreplace:
-#     - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
-#     - marker_start: "Game_LowViolence        csgo_lv // Perfect World content override"
-#     - marker_end: "Game    csgo"
-#     - content: |
-#         Game    csgo/addons/metamod
-#     - append_if_not_found: True
-#     - require:
-#         - cmd: cs2-server-install
-#         - cmd: metamod-install
-#     - unless: grep -q "Game    csgo/addons/metamod" /home/steam/cs2-ds/game/csgo/gameinfo.gi
+metamod-update-gameinfo:
+  file.blockreplace:
+    - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
+    - marker_start: "\t\t\tGame_LowViolence\tcsgo_lv // Perfect World content override"
+    - marker_end: "\t\t\tGame\tcsgo"
+    - content: "\t\t\tGame\tcsgo/addons/metamod"
+    - append_if_not_found: False
+    - backup: True
+    - unless: grep -q 'csgo/addons/metamod' /home/steam/cs2-ds/game/csgo/gameinfo.gi
+
+# ---------------------------------------------------------------------------
+# Install CounterStrikeSharpe
+# ---------------------------------------------------------------------------
+/opt/steamcmd/counterstrikesharp.zip:
+  file.managed:
+    - source: {{ counterstrikesharp_url }}
+    - user: steam
+    - group: steam
+    - mode: 0644
+    - skip_verify: True
+
+counterstrikesharp-install:
+  cmd.run:
+    - name: |
+        unzip /opt/steamcmd/counterstrikesharp.zip
+    - runas: steam
+    - cwd: /home/steam/cs2-ds/game/csgo
+    - require:
+        - cmd: metamod-install
+        - file: /opt/steamcmd/counterstrikesharp.zip
+#    - unless: test -f /home/steam/cs2-ds/game/csgo/addons/cs2sharp/bin/Debug/net7.0/linux-x64/cs2sharp.so
