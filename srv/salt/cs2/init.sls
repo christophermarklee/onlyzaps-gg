@@ -6,9 +6,10 @@
 #}
 
 {% set gsl_token = salt['pillar.get']('cs2:gsl_token', '') %}
+{% set metamod_url = salt['pillar.get']('cs2:metamod_url', 'https://mms.alliedmods.net/mmsdrop/2.0/mmsource-2.0.0-git1348-linux.tar.gz') %}
 
 # ---------------------------------------------------------------------------
-# 0. Ensure firewalld package & service (Fedora usually has it, but be explicit)
+# Ensure firewalld package & service installed and running
 # ---------------------------------------------------------------------------
 firewalld-package:
   pkg.installed:
@@ -37,7 +38,7 @@ cs2-firewall-ports:
         - service: firewalld-service
 
 # ---------------------------------------------------------------------------
-# 1. System packages & build tools
+# System packages & build tools
 # ---------------------------------------------------------------------------
 
 cs2-build-tools:
@@ -64,9 +65,11 @@ cs2-libraries:
         - tree
         - screen
         - git
+        - wget
+        - unzip
 
 # ---------------------------------------------------------------------------
-# 2. steam user account
+# Steam user account
 # ---------------------------------------------------------------------------
 steam-user:
   user.present:
@@ -76,7 +79,7 @@ steam-user:
     - createhome: True
 
 # ---------------------------------------------------------------------------
-# 3. SteamCMD installation
+# SteamCMD installation
 # ---------------------------------------------------------------------------
 /opt/steamcmd:
   file.directory:
@@ -104,7 +107,7 @@ steamcmd-extracted:
         - file: steamcmd-tarball
 
 # ---------------------------------------------------------------------------
-# 4. Install / update CS2 dedicated server
+# Install / update CS2 dedicated server
 # ---------------------------------------------------------------------------
 /home/steam/cs2-ds:
   file.directory:
@@ -161,3 +164,35 @@ cs2-update-cron:
     - minute: 30
     - require:
         - cmd: cs2-server-install
+
+# ---------------------------------------------------------------------------
+# 6. Metamod:Source installation
+# ---------------------------------------------------------------------------
+/opt/steamcmd/metamod.tar.gz:
+  file.managed:
+    - source: {{ metamod_url }}
+    - user: steam
+    - group: steam
+    - mode: 0644
+    - skip_verify: True
+
+metamod-install:
+  cmd.run:
+    - name: |
+        tar -xf /opt/steamcmd/metamod.tar.gz
+    - runas: steam
+    cwd: /home/steam/cs2-ds/game/csgo
+    - require:
+        - cmd: cs2-server-install
+        - file: /opt/steamcmd/metamod.tar.gz
+    - unless: test -f /home/steam/cs2-ds/game/csgo/addons/metamod/metamod/bin/linux64/metamod.2.csgo.so
+
+metamod-update-gameinfo-config:
+  file.blockreplace:
+    - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
+    - user: steam
+    - marker_start: "Game_LowViolence        csgo_lv // Perfect World content override"
+    - marker_end: "Game    csgo"
+    - content: |
+        Game    csgo/addons/metamod
+    - append_if_not_found: True
