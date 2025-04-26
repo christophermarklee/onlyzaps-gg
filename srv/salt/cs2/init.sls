@@ -190,7 +190,6 @@ metamod-install:
 metamod-update-gameinfo-config:
   file.blockreplace:
     - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
-    - user: steam
     - marker_start: "Game_LowViolence        csgo_lv // Perfect World content override"
     - marker_end: "Game    csgo"
     - content: |
