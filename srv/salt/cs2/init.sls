@@ -7,7 +7,7 @@
 
 {% set gsl_token = salt['pillar.get']('cs2:gsl_token', '') %}
 {% set metamod_url = salt['pillar.get']('cs2:metamod_url', 'https://mms.alliedmods.net/mmsdrop/2.0/mmsource-2.0.0-git1348-linux.tar.gz') %}
-{% set counterstrikesharpe_url = salt['pillar.get']('cs2:counterstrikesharpe_url', 'https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v1.0.316/counterstrikesharp-with-runtime-linux-1.0.316.zip') %}
+{% set css_url = salt['pillar.get']('cs2:css_url', 'https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v1.0.316/counterstrikesharp-with-runtime-linux-1.0.316.zip') %}
 
 # ---------------------------------------------------------------------------
 # Ensure firewalld package & service installed and running
@@ -202,7 +202,7 @@ metamod-update-gameinfo:
 # ---------------------------------------------------------------------------
 /opt/steamcmd/counterstrikesharp.zip:
   file.managed:
-    - source: {{ counterstrikesharp_url }}
+    - source: {{ css_url }}
     - user: steam
     - group: steam
     - mode: 0644
@@ -217,4 +217,4 @@ counterstrikesharp-install:
     - require:
         - cmd: metamod-install
         - file: /opt/steamcmd/counterstrikesharp.zip
-#    - unless: test -f /home/steam/cs2-ds/game/csgo/addons/cs2sharp/bin/Debug/net7.0/linux-x64/cs2sharp.so
+    - unless: test -f /home/steam/cs2-ds/game/csgo/addons/counterstrikesharp/bin/linuxsteamrt64/counterstrikesharp.so
