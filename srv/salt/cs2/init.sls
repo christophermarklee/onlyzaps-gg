@@ -65,6 +65,7 @@ cs2-libraries:
         - screen
         - git
         - unzip
+        - vim-enhanced
 
 # ---------------------------------------------------------------------------
 # Steam user account
