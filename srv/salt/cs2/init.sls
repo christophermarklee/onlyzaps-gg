@@ -187,15 +187,15 @@ metamod-install:
         - file: /opt/steamcmd/metamod.tar.gz
     - unless: test -f /home/steam/cs2-ds/game/csgo/addons/metamod/metamod/bin/linux64/metamod.2.csgo.so
 
-metamod-update-gameinfo-config:
-  file.blockreplace:
-    - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
-    - marker_start: "Game_LowViolence        csgo_lv // Perfect World content override"
-    - marker_end: "Game    csgo"
-    - content: |
-        Game    csgo/addons/metamod
-    - append_if_not_found: True
-    - require:
-        - cmd: cs2-server-install
-        - cmd: metamod-install
-    - unless: grep -q "Game    csgo/addons/metamod" /home/steam/cs2-ds/game/csgo/gameinfo.gi
+# metamod-update-gameinfo-config:
+#   file.blockreplace:
+#     - name: /home/steam/cs2-ds/game/csgo/gameinfo.gi
+#     - marker_start: "Game_LowViolence        csgo_lv // Perfect World content override"
+#     - marker_end: "Game    csgo"
+#     - content: |
+#         Game    csgo/addons/metamod
+#     - append_if_not_found: True
+#     - require:
+#         - cmd: cs2-server-install
+#         - cmd: metamod-install
+#     - unless: grep -q "Game    csgo/addons/metamod" /home/steam/cs2-ds/game/csgo/gameinfo.gi
